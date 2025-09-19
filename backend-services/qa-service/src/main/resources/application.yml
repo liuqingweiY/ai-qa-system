@@ -2,10 +2,24 @@ server:
   port: 8082
 spring:
   application:
-    name: qa-service
+    name: qa-service-liuqw
   cloud:
     nacos:
       server-addr: 54.219.180.170:8848
+    loadbalancer:
+      ribbon:
+        enabled: false
+  datasource:
+    url: jdbc:mysql://54.219.180.170:3306/ai_qa_system?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: ai_qa_system
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
 logging:
   level:
     # 将你的FeignClient接口所在的包路径设置为DEBUG

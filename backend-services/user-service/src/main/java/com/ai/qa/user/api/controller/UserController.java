@@ -1,8 +1,18 @@
 package com.ai.qa.user.api.controller;
 
-import com.ai.qa.user.api.dto.AuthRequest;
-import com.ai.qa.user.api.dto.AuthResponse;
+import com.ai.qa.user.api.dto.*;
+import com.ai.qa.user.api.exception.ApiResponse;
+import com.ai.qa.user.application.dto.UserLogin;
+import com.ai.qa.user.application.dto.UserRegister;
+import com.ai.qa.user.application.dto.UserUpdateNick;
+import com.ai.qa.user.application.service.UserService;
+import com.ai.qa.user.infrastructure.persisitence.mappers.UserMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /***
@@ -19,21 +29,60 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
+    private static final Logger log = LogManager.getLogger(UserController.class);
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+    @Value("${datasource.username}")
+    private String username;
+
+    private final UserService userService;
+    private UserMapper mapper;
+
+    @GetMapping("/config")
+    public String login() {
+        System.out.println("测试config");
+        return "测试JWT："+username;
+    }
+
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody AuthRequest request) {
-        System.out.println("测试login");
-        return new AuthResponse("token");
+    public ResponseEntity<ApiResponse<AuthResponse>> login(@RequestBody AuthRequest authRequest) {
+
+        String token = "";
+        try {
+            UserLogin userLogin = mapper.toUserLogin(authRequest);
+            token = userService.login(userLogin);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+        }
+        return ResponseEntity.ok(ApiResponse.success(new AuthResponse(token)));
     }
 
     @PostMapping("/register")
-    public AuthResponse register(@RequestBody AuthRequest request) {
-        System.out.println("测试register");
-        return new AuthResponse("register");
+    public ResponseEntity<ApiResponse<RegisterResponse>> register(@RequestBody RegisterRequest registerRequest) {
+
+        try {
+            UserRegister userRegister = mapper.toUserRegister(registerRequest);
+            userService.register(userRegister);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+        }
+        return ResponseEntity.ok(ApiResponse.success(new RegisterResponse(true)));
+    }
+
+    @PostMapping("/nick")
+    public ResponseEntity<ApiResponse<UpdateNickResponse>> updateNick(@RequestBody UpdateNickRequest updateNickRequest) {
+
+        try {
+            UserUpdateNick userUpdateNick = mapper.toUserUpdateNick(updateNickRequest);
+            userService.updateNick(userUpdateNick);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+        }
+        return ResponseEntity.ok(ApiResponse.success(new UpdateNickResponse(true)));
     }
 
     @GetMapping("/{userId}")
-    public String getUserById(@PathVariable("userId") Long userId) {
-        System.out.println("测试userid");
-        return "userid:"+userId;
+    public String getUser(@PathVariable Long userId) {
+        return userService.getUser(userId);
     }
 }

@@ -1,54 +1,35 @@
 package com.ai.qa.service.domain.model;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
 
-
-
 public class QAHistory {
-
     private String id;
     private String userId;
     private String question;
     private String answer;
-    private LocalDateTime timestamp;
+    private LocalDateTime timeStamp;
     private String sessionId;
 
-    private Object rag;
-
-    public String getId(){
+    public String getId() {
         return this.id;
     }
 
-    /**
-     *
-     * @param question
-     * @return
-     */
     public String getAnswer(String question) {
-        String response = rag.getContext();
-        return answer+response;
+        return answer;
     }
-
-    private QAHistory(String id){
+    public QAHistory() {
 
     }
-
-    public String getUserId(){
-
+    private QAHistory(String userId, String question, String answer, LocalDateTime timeStamp, String sessionId) {
+        this.userId = userId;
+        this.question = question;
+        this.answer = answer;
+        this.timeStamp = timeStamp;
+        this.sessionId = sessionId;
     }
 
-    public String getRAGAnswer(){
-
-        getAnswer();
-        serivice.sss();
-        return  "";
+    public static QAHistory createNew(String userId, String question, String answer, LocalDateTime timeStamp, String sessionId) {
+        return new QAHistory(userId, question, answer, timeStamp, sessionId);
     }
-    public static QAHistory createNew(String userId, String question, String answer,...){
 
-
-        return new QAHistory();
-    }
 }

@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class QAHistoryDto {
+public class SaveHistoryRequest {
     String userId;
     String question;
     String answer;
